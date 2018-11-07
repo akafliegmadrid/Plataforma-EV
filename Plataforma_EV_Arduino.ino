@@ -6,7 +6,7 @@
 
 #include <SoftwareSerial.h>
 
-SoftwareSerial mySerial(2,3);
+SoftwareSerial mySerial(2,3); //Pines (Tx,Rx)
 
 void setup(){
 				
