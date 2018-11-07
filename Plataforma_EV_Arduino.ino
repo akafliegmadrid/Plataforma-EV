@@ -6,7 +6,7 @@
 
 #include <SoftwareSerial.h>
 
-SoftwareSerial mySerial(2,3); //Pines (Tx,Rx)
+SoftwareSerial mySerial(2,3); //Pines (Tx,Rx), Ojo conectar a 3.3V no 5V
 
 void setup(){
 				
