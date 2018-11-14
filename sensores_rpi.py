@@ -7,7 +7,7 @@ import datetime
 port = 1
 host = "60:64:05:FC:D3:CF"
 
-socket = BluetoothSocket(RFCOMM)
+socket = bluetooth.BluetoothSocket(RFCOMM)
 socket.connect((host,port))
 
 # Se abre el archivo y se escribe todo lo que recibe la RPi
