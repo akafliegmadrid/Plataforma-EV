@@ -58,17 +58,17 @@ void loop(){
 				
 	//Módulo temperatura y humedad
   
-  byte temperature = 0;   // (read with raw sample data.
+  Serial.println(" ");
+  Serial.println("---SENSOR TEMP & HUMIDITY---");
+					  
+  byte temperature = 0;   // (read with raw sample data).
   byte humidity = 0;
   byte data[40] = {0};
   if (dht11.read(pinDHT11, &temperature, &humidity, data)) {
-    Serial.print("Read DHT11 failed");
+    Serial.println("Read DHT11 failed");
     return;
   }
  
-  Serial.println(" ");
-  
-  Serial.println("---SENSOR TEMP & HUMIDITY---");
   Serial.println("Temp (C):"); Serial.print( (int)temperature);
   Serial.println("Humidity (%):"); Serial.print( (int)humidity);
   
