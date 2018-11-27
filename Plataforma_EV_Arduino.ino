@@ -50,15 +50,13 @@ void loop(){
     float tempC = (tempVolts - 0.5) * 10.0;
     float tempF = tempC * 9.0 / 5.0 + 32.0;
   */	
-		
-  Serial.print("Temp termistor(C):", tempC);
+				
+  Serial.println("---TERMISTOR---");		
+  Serial.println("Temp (C):"); Serial.print( tempC);
 	
 	 delay (500);
 				
 	//Módulo temperatura y humedad
-	
-  Serial.println("=================================");
-  Serial.println("Sample DHT11...");
   
   byte temperature = 0;   // (read with raw sample data.
   byte humidity = 0;
@@ -67,19 +65,14 @@ void loop(){
     Serial.print("Read DHT11 failed");
     return;
   }
+ 
+  Serial.println(" ");
   
-  Serial.print("Sample RAW Bits: ");
-  for (int i = 0; i < 40; i++) {
-    Serial.print((int)data[i]);
-    if (i > 0 && ((i + 1) % 4) == 0) {
-      Serial.print(' ');
-    }
-  }
-  Serial.println("");
-  
-  Serial.print("Sample OK: ");
-  Serial.print((int)temperature); Serial.print(" *C, ");
-  Serial.print((int)humidity); Serial.println(" %");
+  Serial.println("---SENSOR TEMP & HUMIDITY---");
+  Serial.println("Temp (C):"); Serial.print( (int)temperature);
+  Serial.println("Humidity (%):"); Serial.print( (int)humidity);
   
   delay(1000); 	// DHT11 sampling rate is 1HZ.					
 }
+
+				
