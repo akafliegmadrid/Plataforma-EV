@@ -28,51 +28,49 @@ void setup(){
 void loop(){
  //Modulo Bluetooh
 	 if (Serial.available()>0){
-		  mySerial.write(Serial.read());
+		mySerial.write(Serial.read());
 	 }
 				
 	 if (mySerial.available()>0){
-	   Serial.write(mySerial.read());
+	   	Serial.write(mySerial.read());
 	 }
  
-	//Termistor
+ //Termistor
 				
-	 int tempReading = analogRead(tempPin);
+	int tempReading = analogRead(tempPin);
   
-   double tempK = log(10000.0 * ((1024.0 / tempReading - 1)));
+	double tempK = log(10000.0 * ((1024.0 / tempReading - 1)));
    
-		tempK = 1 / (0.001129148 + (0.000234125 + (0.0000000876741 * tempK * tempK )) * tempK );       //  Temp Kelvin
+	tempK = 1 / (0.001129148 + (0.000234125 + (0.0000000876741 * tempK * tempK )) * tempK );       //  Temp Kelvin
   
-   float tempC = tempK - 273.15;            // Convert Kelvin to Celcius
+   	float tempC = tempK - 273.15;            // Convert Kelvin to Celcius
  
-  /*  replaced
-    float tempVolts = tempReading * 5.0 / 1024.0;
-    float tempC = (tempVolts - 0.5) * 10.0;
-    float tempF = tempC * 9.0 / 5.0 + 32.0;
-  */	
+  	/*  replaced
+    	float tempVolts = tempReading * 5.0 / 1024.0;
+    	float tempC = (tempVolts - 0.5) * 10.0;
+    	float tempF = tempC * 9.0 / 5.0 + 32.0;
+  	*/	
 				
-  Serial.println("---TERMISTOR---");		
-  Serial.println("Temp (C):"); Serial.print( tempC);
+  	Serial.println("---TERMISTOR---");		
+  	Serial.println("Temp (C):"); Serial.print( tempC);
 	
-	 delay (500);
+	delay (500);
 				
-	//Módulo temperatura y humedad
+ //Módulo temperatura y humedad
   
-  Serial.println(" ");
-  Serial.println("---SENSOR TEMP & HUMIDITY---");
+  	Serial.println(" ");
+  	Serial.println("---SENSOR TEMP & HUMIDITY---");
 					  
-  byte temperature = 0;   // (read with raw sample data).
-  byte humidity = 0;
-  byte data[40] = {0};
-  if (dht11.read(pinDHT11, &temperature, &humidity, data)) {
-    Serial.println("Read DHT11 failed");
-    return;
-  }
+  	byte temperature = 0;   // (read with raw sample data).
+  	byte humidity = 0;
+  	byte data[40] = {0};
+  	if (dht11.read(pinDHT11, &temperature, &humidity, data)) {
+    		Serial.println("Read DHT11 failed");
+    	return;
+  	}
  
-  Serial.println("Temp (C):"); Serial.print( (int)temperature);
-  Serial.println("Humidity (%):"); Serial.print( (int)humidity);
+  	Serial.println("Temp (C):"); Serial.print( (int)temperature);
+  	Serial.println("Humidity (%):"); Serial.print( (int)humidity);
   
-  delay(1000); 	// DHT11 sampling rate is 1HZ.					
+  	delay(1000); 	// DHT11 sampling rate is 1HZ.					
 }
-
-				
