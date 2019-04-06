@@ -45,11 +45,11 @@ sampleTime = 100    # En comms. en serie, siempre hay que dejar un delay entre d
 
 # Direccion Bluetooth de los Arduino
 btAddr1 = "60:64:05:CF:D3:FC"
-#btAddr2 = "60:64:05:D0:0F:58"
+btAddr2 = "60:64:05:D0:0F:58"
 
 # UUID de las caracteristicas de lectura
 btRead1 = UUID(0xffe1)
-#btRead2 = UUID(0xffe1)
+btRead2 = UUID(0xffe1)
 
 #### FUNCIONES ####
 # Funcion handle de las notificaciones
@@ -88,32 +88,29 @@ def read_sensor(dev, start):
                                         # ejecutar el bucle
 #### MAIN ####
 # Creacion de archivos log
-start1, log1 = start_log(1)
-#start2, log2 = start_log(2)
+start1, log1 = start_log(btAddr1[-2:])
+start2, log2 = start_log(btAddr2[-2:])
 
 # Conexion a los sensores
 btDev1 = Peripheral(btAddr1)
-#btDev2 = Peripheral(btAddr2)
+btDev2 = Peripheral(btAddr2)
 
 # Seleccion de las caracteristicas de lectura
 btCh1 = btDev1.getCharacteristics(uuid=btRead1)[0]
-#btCh2 = btDev2.getCharacteristics(uuid=btRead2)[0]
+btCh2 = btDev2.getCharacteristics(uuid=btRead2)[0]
 
 # Asignacion del "delegate" (tambien se activan las notificaciones)
 btDev1.setDelegate(BtDelegate(btDev1,btCh1.valHandle,log1,start1))
-#btDev2.setDelegate(BtDelegate(btDev2,btCh2.valHandle,log2,start2))
+btDev2.setDelegate(BtDelegate(btDev2,btCh2.valHandle,log2,start2))
 
-# Lectura de sensores en paralelo (pendiente...)
-#p1 = Process(target=read_sensor, args=(btDev1,start1))
-#p2 = Process(target=read_sensor, args=(btDev2,start2))
-#p1.start()
-#p2.start()
-#p1.join()
-#p2.join()
-
-# De momento, con un sensor no es necesario paralelizar
-read_sensor(btDev1,start1)
+# Lectura de sensores en paralelo
+p1 = Process(target=read_sensor, args=(btDev1,start1))
+p2 = Process(target=read_sensor, args=(btDev2,start2))
+p1.start()
+p2.start()
+p1.join()
+p2.join()
 
 # Desconexion de los sensores antes de terminar
 btDev1.disconnect()
-#btDev2.disconnect()
+btDev2.disconnect()
