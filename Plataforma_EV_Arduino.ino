@@ -7,6 +7,7 @@
 #include <Adafruit_BME280.h>
 
 typedef struct {
+  uint32_t timestamp;
   float temperature;
   float pressure;
   float humidity;
@@ -36,6 +37,7 @@ void loop () {
 
 void read_data (data_t &data) {
 
+  data.timestamp   = millis();
   data.temperature = sensor.readTemperature();
   data.pressure    = sensor.readPressure();
   data.humidity    = sensor.readHumidity();
@@ -44,6 +46,7 @@ void read_data (data_t &data) {
 
 void send_data (data_t data) {
 
+  Serial.print(data.timestamp);   Serial.print(',');
   Serial.print(data.temperature); Serial.print(',');
   Serial.print(data.pressure);    Serial.print(',');
   Serial.println(data.humidity);
