@@ -13,6 +13,8 @@ typedef struct {
   float humidity;
 } data_t;
 
+const uint16_t sampleTime = 500;  // [ms]
+uint32_t readingTime;
 data_t data;
 Adafruit_BME280 sensor;
 				
@@ -28,10 +30,12 @@ void setup () {
 
 void loop () {
 
+  readingTime = millis()
   read_data(data);
   send_data(data);
 
-  delay(50);
+  // Delay para que se envien datos cada 'sampleTime' ms
+  while ((uint32_t)(millis()-readingTime) < sampleTime) {}
 
 }
 
