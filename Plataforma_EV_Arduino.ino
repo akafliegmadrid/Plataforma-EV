@@ -13,11 +13,11 @@ typedef struct {
   float humidity;
 } data_t;
 
-const uint16_t sampleTime = 500;  // [ms]
+const uint32_t sampleTime = 500;  // [ms]
 uint32_t readingTime;
 data_t data;
 Adafruit_BME280 sensor;
-				
+
 void setup () {
 
   Serial.begin(9600);
@@ -30,7 +30,7 @@ void setup () {
 
 void loop () {
 
-  readingTime = millis()
+  readingTime = millis();
   read_data(data);
   send_data(data);
 

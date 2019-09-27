@@ -117,7 +117,7 @@ try:
 
         # Se enciende el LED
         GPIO.output(readingLED, GPIO.HIGH)
-    
+
         # Delay de 3 segundos tras el inicio
         time.sleep(3)
 
@@ -169,12 +169,12 @@ try:
         # Desconexion de los sensores antes de terminar
         btDev1.disconnect()
         btDev2.disconnect()
-    
+
         # Se apaga el LED
         GPIO.output(readingLED, GPIO.LOW)
 
         # Delay de 3 segundos hasta que se pueda iniciar otra vez
         time.sleep(3)
-        
+
 except KeyboardInterrupt:
     GPIO.cleanup()
