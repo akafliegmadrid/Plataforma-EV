@@ -38,10 +38,14 @@ Refs:
 from bluepy.btle import UUID, Peripheral, DefaultDelegate  # Solo se importan esos tres objetos
 import RPi.GPIO as GPIO                                    # Pines GPIO
 import time                                                # Funciones relacionadas con el tiempo
+import smbus                                               # Conexiones mediante I2C y SPI
 
 #### PARAMETROS ####
 # Tiempo entre muestras [ms]
 sampleTime = 200
+
+# Direccion I2C de la IMU
+IMUaddr = 0x53
 
 # Direccion Bluetooth de los Arduino
 btAddr1 = "60:64:05:CF:D3:FC"
@@ -67,15 +71,13 @@ thermalToggleString = "--> Thermal Toggle <--"
 # Funcion handle de las notificaciones
 class BtDelegate(DefaultDelegate):
     # Al principio se activan las notificaciones y se guardan algunas variables necesarias despues
-    def __init__(self, dev, chHandle, fh, start):
-        self.dev = dev
+    def __init__(self, dev, chHandle):
         self.fh = fh
-        self.start = start
         DefaultDelegate.__init__(self)
         dev.writeCharacteristic(chHandle+1, b'\x01\x00')
     # Cuando llega una notificacion se escribe en el archivo especificado en "fh"
     def handleNotification(self, cHandle, data):
-        write2file(self.dev, self.fh, self.start, data)
+        write2file(self.fh, data)
 
 # Funcion para crear el archivo log a partir de la fecha en la que se ejecuta el programa
 def start_log(num):
@@ -88,9 +90,15 @@ def start_log(num):
     return startTime, logfile
 
 # Funcion de escritura de los datos recibidos
-def write2file(dev, fh, start, data):
+def write2file(fh, data):
     data = data.decode('utf-8')
     fh.write(data)
+
+# Funcion de lectura y escritura de los datos de la IMU en log
+def saveIMUstate(dev, devAddr, log, startTime):
+    buf = dev.read_i2c_block_data(devAddr, 0x32, 8)
+    ax, ay, az = struct.unpack('<ff', buf)
+    log.write("{},{},{},{}".format(time.time()-startTime, ax, ay, az))
 
 #### MAIN ####
 # Interfaces GPIO
@@ -122,8 +130,9 @@ try:
         time.sleep(3)
 
         # Creacion de archivos log
-        start1, log1 = start_log(btAddr1[-2:])
-        start2, log2 = start_log(btAddr2[-2:])
+        startBT1, logBT1 = start_log(btAddr1[-2:])
+        startBT2, logBT2 = start_log(btAddr2[-2:])
+        startIMU, logIMU = start_log("IMU")
 
         # Conexion a los sensores
         btDev1 = Peripheral(btAddr1)
@@ -134,8 +143,11 @@ try:
         btCh2 = btDev2.getCharacteristics(uuid=btRead2)[0]
 
         # Asignacion del "delegate" (tambien se activan las notificaciones)
-        btDev1.setDelegate(BtDelegate(btDev1,btCh1.valHandle,log1,start1))
-        btDev2.setDelegate(BtDelegate(btDev2,btCh2.valHandle,log2,start2))
+        btDev1.setDelegate(BtDelegate(btDev1,btCh1.valHandle,logBT1))
+        btDev2.setDelegate(BtDelegate(btDev2,btCh2.valHandle,logBT2))
+
+        # Creacion de la conexion con la IMU
+        IMU = smbus.SMBus(0)
 
         # Lectura de sensores en serie
         StartStopPressed = False
@@ -151,8 +163,8 @@ try:
                 StartStopPressed = False
             # Se cambia el modo termica si se pulsa el boton
             if not GPIO.input(thermalBtn) and not thermalPressed:
-                log1.write(thermalToggleString)
-                log2.write(thermalToggleString)
+                logBT1.write(thermalToggleString)
+                logBT2.write(thermalToggleString)
                 thermalPressed = True
                 thermalLEDState = not thermalLEDState
                 GPIO.output(thermalLED, thermalLEDState)
@@ -160,11 +172,13 @@ try:
                 thermalPressed = False
             while btDev1.waitForNotifications(sampleTime/1000): pass
             while btDev2.waitForNotifications(sampleTime/1000): pass
+            # Se guarda el estado de la IMU antes de comprobar si se sale del bucle
+            saveIMUstate(IMU, IMUaddr, logIMU)
             if not GPIO.input(startStopBtn) and time.time()-startTime >= startStopThres/1000: break
 
         # Archivos log terminados
-        log1.close()
-        log2.close()
+        logBT1.close()
+        logBT2.close()
 
         # Desconexion de los sensores antes de terminar
         btDev1.disconnect()
